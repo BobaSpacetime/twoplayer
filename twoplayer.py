@@ -17,6 +17,11 @@ redrect = pygame.Rect(100,225,50,50)
 yelrect = pygame.Rect(500,225,50,50)
 fps = 60
 clock = pygame.time.Clock()
+fire = pygame.mixer.Sound("Two Player/images/Grenade+1.mp3")
+col = pygame.mixer.Sound("Two Player/images/Gun+Silencer.mp3")
+font = pygame.font.SysFont("comicsansms", 17)
+yelhealth = 5
+redhealth = 5
 
 def redmove():
     if keys_pressed[pygame.K_w]and redrect.y>0:
@@ -39,18 +44,42 @@ def yellowmove():
         yelrect.x+=2
 
 redbulls=[]
+yelbulls=[]
 while True:
     clock.tick(fps)
     screen.blit(space, (0,0))
+    text = font.render("Health = " + str(yelhealth), True, "#000000")
+    text1 = font.render("Health = " + str(redhealth), True, "#000000")
+    screen.blit(text, (550, 50))
+    screen.blit(text, (50, 50))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
-                bullet = pygame.Rect(redrect.x, redrect.y,5, 5)
+                fire.play()
+                bullet = pygame.Rect(redrect.x + 50, redrect.y + 22.5, 5, 5)
                 redbulls.append(bullet)
-    for bullets in redbulls:
-        pygame.draw.rect(screen, "#65180E", bullets)
+            if event.key == pygame.K_SLASH:
+                fire.play()
+                bullets = pygame.Rect(yelrect.x - 5, yelrect.y + 23, 5, 5)
+                yelbulls.append(bullets)
+    for bullet in redbulls:
+        pygame.draw.rect(screen, "#FF1E00", bullet)
+        bullet.x+=4
+        if bullet.colliderect(yelrect):
+            col.play()
+            yelhealth-=1
+            redbulls.remove(bullet)
+    keys_pressed = pygame.key.get_pressed()
+    for bullets in yelbulls:
+        pygame.draw.rect(screen, "#FFC800", bullets)
+        bullets.x-=4
+        if bullet.colliderect(redrect):
+            col.play()
+            redhealth-=1
+            yelbulls.remove(bullet)
+
     keys_pressed = pygame.key.get_pressed()
     redmove()
     yellowmove()
